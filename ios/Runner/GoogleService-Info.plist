@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>CLIENT_ID</key>
+	<string>789983242304-68ackbatg9gq82eoqaab3jh9qhb4crjp.apps.googleusercontent.com</string>
+	<key>REVERSED_CLIENT_ID</key>
+	<string>com.googleusercontent.apps.789983242304-68ackbatg9gq82eoqaab3jh9qhb4crjp</string>
+	<key>ANDROID_CLIENT_ID</key>
+	<string>789983242304-lcdjmahckqq14nusqd6bbjkso2rfd14q.apps.googleusercontent.com</string>
+	<key>API_KEY</key>
+	<string>AIzaSyCZ6W9yDQ7H3vjurbPKYuQw6i9kOGEtvi8</string>
+	<key>GCM_SENDER_ID</key>
+	<string>789983242304</string>
+	<key>PLIST_VERSION</key>
+	<string>1</string>
+	<key>BUNDLE_ID</key>
+	<string>com.example.kodixaBook</string>
+	<key>PROJECT_ID</key>
+	<string>kodixabook</string>
+	<key>STORAGE_BUCKET</key>
+	<string>kodixabook.appspot.com</string>
+	<key>IS_ADS_ENABLED</key>
+	<false></false>
+	<key>IS_ANALYTICS_ENABLED</key>
+	<false></false>
+	<key>IS_APPINVITE_ENABLED</key>
+	<true></true>
+	<key>IS_GCM_ENABLED</key>
+	<true></true>
+	<key>IS_SIGNIN_ENABLED</key>
+	<true></true>
+	<key>GOOGLE_APP_ID</key>
+	<string>1:789983242304:ios:9983c5b2fd1257bcffd7a5</string>
+</dict>
+</plist>
