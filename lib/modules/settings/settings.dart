@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:kodixa_book/layout/cubit/cubit.dart';
 import 'package:kodixa_book/layout/cubit/states.dart';
 import 'package:kodixa_book/models/post_model.dart';
+import 'package:kodixa_book/models/user_model.dart';
 import 'package:kodixa_book/modules/edit_profile/edit_profile.dart';
 import 'package:kodixa_book/shared/components/components.dart';
 import 'package:kodixa_book/shared/styles/icon_broken.dart';
@@ -20,6 +21,7 @@ class SettingsScreen extends StatelessWidget {
       builder: (context, state) {
         var cubit = SocialCubit.get(context);
         return SingleChildScrollView(
+          physics:const  BouncingScrollPhysics(),
           child: Column(
             children: [
               SizedBox(
@@ -180,11 +182,15 @@ class SettingsScreen extends StatelessWidget {
                 shrinkWrap: true,
                 itemCount: cubit.postOnly.length,
                 itemBuilder: (context, index) =>
-                    buildPostItem(PostModel.fromJson(cubit.postOnly[index]), context, index),
+                    buildPostItem(PostModel.fromJson(cubit.postOnly[index]),cubit.usersPosts[index] ,context, index),
                 separatorBuilder: (BuildContext context, int index) =>
                 const SizedBox(
                   height: 10,
                 ),
+              ),
+
+              const SizedBox(
+                height: 10,
               ),
             ],
           ),

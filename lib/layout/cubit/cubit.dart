@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:kodixa_book/layout/cubit/states.dart';
+import 'package:kodixa_book/models/massage_model.dart';
 import 'package:kodixa_book/models/post_model.dart';
 import 'package:kodixa_book/models/user_model.dart';
 import 'package:kodixa_book/modules/chats/chats.dart';
@@ -27,6 +28,8 @@ class SocialCubit extends Cubit<SocialStates> {
   TextEditingController phone = TextEditingController();
   TextEditingController bioController = TextEditingController();
   TextEditingController postController = TextEditingController();
+  TextEditingController textMassageController = TextEditingController();
+  var formKey = GlobalKey<FormState>();
   File? profileImage;
   File? coverImage;
   File? postImage;
@@ -271,14 +274,17 @@ class SocialCubit extends Cubit<SocialStates> {
     emit(SocialAddLikePostSuccessState());
   }
 
+  List userPostId = [];
+
   void getPost() {
     emit(SocialGetPostLoadingState());
     FirebaseFirestore.instance.collection('posts').get().then((value) {
       for (var element in value.docs) {
+        userPostId.add(element['uId']);
         element.reference.collection('likes').get().then((value) {
-          likes.add(value.docs.length);
-          postsId.add(element.id);
           posts.add(PostModel.fromJson(element.data()));
+          postsId.add(element.id);
+          likes.add(value.docs.length);
           for (var element in value.docs) {
             likesUID.add(element.reference.id);
             likeIs.add(true);
@@ -287,13 +293,13 @@ class SocialCubit extends Cubit<SocialStates> {
             likesUID.add("null");
             likeIs.add(false);
           }
-          print(likes);
+          getAllUsers();
         }).catchError((onError) {
           print(onError);
         });
       }
-      getAllUsers();
       emit(SocialGetPostSuccessState());
+
     }).catchError((onError) {
       print("Error is $onError");
       emit(SocialGetPostErrorState(onError));
@@ -309,8 +315,8 @@ class SocialCubit extends Cubit<SocialStates> {
         .doc(userModel!.uId)
         .set({"like": true}).then((value) {
       // getPost();
-      emit(SocialLikePostSuccessState());
       addLike(index, true);
+      emit(SocialLikePostSuccessState());
     }).catchError((onError) {
       print("Error is $onError");
       emit(SocialLikePostErrorState(onError));
@@ -336,24 +342,29 @@ class SocialCubit extends Cubit<SocialStates> {
   }
 
   List<UserModel> users = [];
+  List<UserModel> usersPosts = [];
 
   void getAllUsers() {
     emit(SocialGetAllUserLoadingState());
-    if(users.isEmpty){
-      FirebaseFirestore.instance.collection('users').get().then((value) {
-        value.docs.forEach((element) {
-          if(element.data()['uId'] != userModel!.uId){
-            users.add(UserModel.fromJson(element.data()));
-          }
 
-        });
+      FirebaseFirestore.instance.collection('users').get().then((value) {
+        for (var element in value.docs) {
+          if (users.isEmpty) {
+            if (element.data()['uId'] != userModel!.uId) {
+              users.add(UserModel.fromJson(element.data()));
+            }
+          }
+          if (userPostId.contains(element.data()["uId"])) {
+            usersPosts.add(UserModel.fromJson(element.data()));
+          }
+        }
+        print(usersPosts.length);
         getOnlyPost();
         emit(SocialGetAllUserSuccessState());
       }).catchError((onError) {
         print("Error is $onError");
         emit(SocialGetAllUserErrorState(onError));
       });
-    }
 
   }
 
@@ -365,20 +376,89 @@ class SocialCubit extends Cubit<SocialStates> {
     emit(SocialGetPostOnlyLoadingState());
     FirebaseFirestore.instance.collection('posts').get().then((value) {
       for (var element in value.docs) {
-        if(element['uId'] == userModel!.uId){
+        if (element['uId'] == userModel!.uId) {
           postOnly.add(element.data());
           countPost++;
-          if(element['postImage'] != ''){
+          if (element['postImage'] != '') {
             countPhotoPost++;
           }
         }
-
       }
-      print(postOnly);
       emit(SocialGetPostOnlySuccessState());
     }).catchError((onError) {
       print("Error is $onError");
       emit(SocialGetPostOnlyErrorState(onError));
+    });
+  }
+
+  void sendMassage({
+    required String receiverId,
+    required String dateTime,
+    required String text,
+  }) {
+    MassageModel model = MassageModel(
+      text: text,
+      senderId: userModel!.uId,
+      receiverId: receiverId,
+      dateTime: dateTime,
+    );
+
+    if (formKey.currentState!.validate()) {
+      //// Sent Me
+      FirebaseFirestore.instance
+          .collection('users')
+          .doc(userModel!.uId)
+          .collection('chats')
+          .doc(receiverId)
+          .collection('messages')
+          .add(model.toMap())
+          .then((value) {
+        emit(SocialSendMessageSuccessState());
+      }).catchError((onError) {
+        print("Error Is $onError");
+        emit(SocialSendMessageErrorState(onError));
+      });
+      //// Sent receiver
+      FirebaseFirestore.instance
+          .collection('users')
+          .doc(receiverId)
+          .collection('chats')
+          .doc(userModel!.uId)
+          .collection('messages')
+          .add(model.toMap())
+          .then((value) {
+        emit(SocialSendMessageSuccessState());
+      }).catchError((onError) {
+        print("Error Is $onError");
+        emit(SocialSendMessageErrorState(onError));
+      });
+      textMassageController.text = '';
+    }
+  }
+
+  List<MassageModel> messages = [];
+
+  void getMessages({
+    required String receiverId,
+  }) {
+    FirebaseFirestore.instance
+        .collection('users')
+        .doc(userModel!.uId)
+        .collection('chats')
+        .doc(receiverId)
+        .collection('messages')
+        .orderBy('dateTime')
+        .snapshots()
+        .listen((event) {
+      messages.clear();
+
+      for (var element in event.docs) {
+        messages.add(MassageModel.fromJson(element.data()));
+      }
+      for (var element in messages) {
+        print(element);
+      }
+      emit(SocialGetMessageSuccessState());
     });
   }
 }

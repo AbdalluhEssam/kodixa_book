@@ -1,9 +1,11 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import 'package:kodixa_book/layout/cubit/cubit.dart';
 import 'package:kodixa_book/layout/cubit/states.dart';
 import 'package:kodixa_book/models/post_model.dart';
+import 'package:kodixa_book/models/user_model.dart';
 import 'package:kodixa_book/shared/styles/colors.dart';
 import 'package:kodixa_book/shared/styles/icon_broken.dart';
 
@@ -16,61 +18,65 @@ class FeedsScreen extends StatelessWidget {
       listener: (context, state) {},
       builder: (context, state) {
         var cubit = SocialCubit.get(context);
-        return cubit.posts.isEmpty
+        return cubit.posts.isEmpty && cubit.usersPosts.isEmpty
             ? const Center(child: CircularProgressIndicator())
-            : SingleChildScrollView(
-                physics: const BouncingScrollPhysics(),
-                child: Column(
+            : RefreshIndicator(child: SingleChildScrollView(
+          physics: const BouncingScrollPhysics(),
+          child: Column(
+            children: [
+              Card(
+                elevation: 10,
+                margin: const EdgeInsets.all(8.0),
+                shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(8)),
+                clipBehavior: Clip.antiAliasWithSaveLayer,
+                child: Stack(
+                  alignment: AlignmentDirectional.bottomEnd,
                   children: [
-                    Card(
-                      elevation: 10,
-                      margin: const EdgeInsets.all(8.0),
-                      shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(8)),
-                      clipBehavior: Clip.antiAliasWithSaveLayer,
-                      child: Stack(
-                        alignment: AlignmentDirectional.bottomEnd,
-                        children: [
-                          Image.network(
-                            "https://instagram.fcai19-7.fna.fbcdn.net/v/t51.2885-19/334093423_932091597840436_2935192682114262128_n.jpg?stp=dst-jpg_s320x320&_nc_ht=instagram.fcai19-7.fna.fbcdn.net&_nc_cat=104&_nc_ohc=zekpAVWToKcAX_Pa4AC&edm=AOQ1c0wBAAAA&ccb=7-5&oh=00_AfAqcVbQ4Nhx366jDR_4JP-aU3e7xihvTfh8atz-W9mBWQ&oe=64A6FEB4&_nc_sid=8b3546",
-                            fit: BoxFit.cover,
-                            height: 200,
-                            width: double.infinity,
-                          ),
-                          Padding(
-                            padding: const EdgeInsets.all(8.0),
-                            child: Text("Communicate with friends",
-                                style: Theme.of(context)
-                                    .textTheme
-                                    .subtitle1!
-                                    .copyWith(color: Colors.white)),
-                          ),
-                        ],
-                      ),
+                    Image.network(
+                      "https://instagram.fcai19-7.fna.fbcdn.net/v/t51.2885-19/334093423_932091597840436_2935192682114262128_n.jpg?stp=dst-jpg_s320x320&_nc_ht=instagram.fcai19-7.fna.fbcdn.net&_nc_cat=104&_nc_ohc=zekpAVWToKcAX_Pa4AC&edm=AOQ1c0wBAAAA&ccb=7-5&oh=00_AfAqcVbQ4Nhx366jDR_4JP-aU3e7xihvTfh8atz-W9mBWQ&oe=64A6FEB4&_nc_sid=8b3546",
+                      fit: BoxFit.cover,
+                      height: 200,
+                      width: double.infinity,
                     ),
-                    ListView.separated(
-                      physics: const NeverScrollableScrollPhysics(),
-                      shrinkWrap: true,
-                      itemCount: cubit.posts.length,
-                      itemBuilder: (context, index) =>
-                          buildPostItem(cubit.posts[index], context, index),
-                      separatorBuilder: (BuildContext context, int index) =>
-                          const SizedBox(
-                        height: 10,
-                      ),
-                    ),
-                    const SizedBox(
-                      height: 10,
+                    Padding(
+                      padding: const EdgeInsets.all(8.0),
+                      child: Text("Communicate with friends",
+                          style: Theme.of(context)
+                              .textTheme
+                              .subtitle1!
+                              .copyWith(color: Colors.white)),
                     ),
                   ],
                 ),
-              );
+              ),
+              ListView.separated(
+                physics: const NeverScrollableScrollPhysics(),
+                shrinkWrap: true,
+                itemCount: cubit.usersPosts.length,
+                itemBuilder: (context, index) => buildPostItem(
+                    cubit.posts[index],
+                    cubit.usersPosts[index]
+                    ,context, index),
+                separatorBuilder: (BuildContext context, int index) =>
+                const SizedBox(
+                  height: 10,
+                ),
+              ),
+              const SizedBox(
+                height: 10,
+              ),
+            ],
+          ),
+        ), onRefresh: ()async{
+              cubit.getPost();
+        });
       },
     );
   }
 }
 
-Widget buildPostItem(PostModel model, context, index) => Card(
+Widget buildPostItem(PostModel model,UserModel userModel, context, index) => Card(
       elevation: 10,
       margin: const EdgeInsets.symmetric(horizontal: 8),
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
@@ -83,7 +89,7 @@ Widget buildPostItem(PostModel model, context, index) => Card(
               children: [
                 CircleAvatar(
                   radius: 25,
-                  backgroundImage: CachedNetworkImageProvider(model.image!),
+                  backgroundImage: CachedNetworkImageProvider(userModel.image!),
                 ),
                 const SizedBox(
                   width: 15,
@@ -94,7 +100,7 @@ Widget buildPostItem(PostModel model, context, index) => Card(
                   children: [
                     Row(
                       children: [
-                        Text(model.name!,
+                        Text(userModel.name!,
                             style: Theme.of(context)
                                 .textTheme
                                 .subtitle1!
@@ -109,7 +115,8 @@ Widget buildPostItem(PostModel model, context, index) => Card(
                         )
                       ],
                     ),
-                    Text(model.dateTime!,
+
+                    Text(DateFormat('d MMMM y  hh:mm:a', 'en_US').format(DateTime.parse(model.dateTime!)),
                         style: Theme.of(context)
                             .textTheme
                             .caption!

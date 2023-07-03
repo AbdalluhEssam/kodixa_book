@@ -74,3 +74,15 @@ class SocialUnLikePostErrorState extends SocialStates{
 class SocialPlusLikePostSuccessState extends SocialStates{}
 class SocialMinLikePostSuccessState extends SocialStates{}
 class SocialAddLikePostSuccessState extends SocialStates{}
+
+class SocialSendMessageSuccessState extends SocialStates{}
+class SocialSendMessageErrorState extends SocialStates{
+  final String error;
+  SocialSendMessageErrorState(this.error);
+}
+
+class SocialGetMessageSuccessState extends SocialStates{}
+class SocialGetMessageErrorState extends SocialStates{
+  final String error;
+  SocialGetMessageErrorState(this.error);
+}
