@@ -21,7 +21,14 @@ class SocialAppLayout extends StatelessWidget {
         var cubit = SocialCubit.get(context);
         return Scaffold(
           appBar: AppBar(
-            title:  Text(cubit.title[cubit.currentIndex]),
+            titleSpacing: 5,
+            title:  Row(
+              children: [
+                Image.asset("assets/images/bookSmall.png",height: 45, fit: BoxFit.cover,),
+                const SizedBox(width: 8,),
+                Text(cubit.title[cubit.currentIndex])
+              ],
+            ),
             actions: [
               IconButton(onPressed: (){}, icon: const Icon(IconBroken.Notification)),
               IconButton(onPressed: (){}, icon: const Icon(IconBroken.Search)),

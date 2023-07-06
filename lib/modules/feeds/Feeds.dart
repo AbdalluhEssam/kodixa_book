@@ -42,6 +42,12 @@ class FeedsScreen extends StatelessWidget {
                               height: 200,
                               width: double.infinity,
                             ),
+                            // Image.asset(
+                            //   "assets/images/logoBook.png",
+                            //   fit: BoxFit.cover,
+                            //   height: 200,
+                            //   width: double.infinity,
+                            // ),
                             Padding(
                               padding: const EdgeInsets.all(8.0),
                               child: Text("Communicate with friends",
@@ -300,8 +306,7 @@ Widget buildPostItem(PostModel model, UserModel userModel, context, index) =>
                                                           style:
                                                               Theme.of(context)
                                                                   .textTheme
-                                                                  .subtitle1!
-                                                                 ),
+                                                                  .subtitle1!),
                                                       const SizedBox(
                                                         width: 5,
                                                       ),
@@ -332,7 +337,9 @@ Widget buildPostItem(PostModel model, UserModel userModel, context, index) =>
                                                                           1.4)),
                                                     ],
                                                   ),
-                                                 const SizedBox(height: 5,),
+                                                  const SizedBox(
+                                                    height: 5,
+                                                  ),
                                                   Text(
                                                     SocialCubit.get(context)
                                                         .comment[index]['text']
@@ -342,9 +349,10 @@ Widget buildPostItem(PostModel model, UserModel userModel, context, index) =>
                                                         .bodyText2!
                                                         .copyWith(
                                                             fontWeight:
-                                                                FontWeight
-                                                                    .bold,height: 1.4),
-                                                    textAlign: TextAlign.justify,
+                                                                FontWeight.bold,
+                                                            height: 1.4),
+                                                    textAlign:
+                                                        TextAlign.justify,
                                                   ),
                                                 ],
                                               ),
