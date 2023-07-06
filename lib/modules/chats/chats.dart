@@ -7,7 +7,6 @@ import 'package:kodixa_book/layout/cubit/states.dart';
 import 'package:kodixa_book/models/user_model.dart';
 import 'package:kodixa_book/modules/chats_details/chats_details.dart';
 import 'package:kodixa_book/shared/components/components.dart';
-import 'package:kodixa_book/shared/styles/icon_broken.dart';
 
 class ChatsScreen extends StatelessWidget {
   const ChatsScreen({Key? key}) : super(key: key);

@@ -20,63 +20,71 @@ class FeedsScreen extends StatelessWidget {
         var cubit = SocialCubit.get(context);
         return cubit.posts.isEmpty && cubit.usersPosts.isEmpty
             ? const Center(child: CircularProgressIndicator())
-            : RefreshIndicator(child: SingleChildScrollView(
-          physics: const BouncingScrollPhysics(),
-          child: Column(
-            children: [
-              Card(
-                elevation: 10,
-                margin: const EdgeInsets.all(8.0),
-                shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(8)),
-                clipBehavior: Clip.antiAliasWithSaveLayer,
-                child: Stack(
-                  alignment: AlignmentDirectional.bottomEnd,
-                  children: [
-                    Image.network(
-                      "https://instagram.fcai19-7.fna.fbcdn.net/v/t51.2885-19/334093423_932091597840436_2935192682114262128_n.jpg?stp=dst-jpg_s320x320&_nc_ht=instagram.fcai19-7.fna.fbcdn.net&_nc_cat=104&_nc_ohc=zekpAVWToKcAX_Pa4AC&edm=AOQ1c0wBAAAA&ccb=7-5&oh=00_AfAqcVbQ4Nhx366jDR_4JP-aU3e7xihvTfh8atz-W9mBWQ&oe=64A6FEB4&_nc_sid=8b3546",
-                      fit: BoxFit.cover,
-                      height: 200,
-                      width: double.infinity,
-                    ),
-                    Padding(
-                      padding: const EdgeInsets.all(8.0),
-                      child: Text("Communicate with friends",
-                          style: Theme.of(context)
-                              .textTheme
-                              .subtitle1!
-                              .copyWith(color: Colors.white)),
-                    ),
-                  ],
+            : RefreshIndicator(
+                child: SingleChildScrollView(
+                  physics: const BouncingScrollPhysics(),
+                  child: Column(
+                    children: [
+                      Card(
+                        elevation: 10,
+                        margin: const EdgeInsets.all(8.0),
+                        shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(8)),
+                        clipBehavior: Clip.antiAliasWithSaveLayer,
+                        child: Stack(
+                          alignment: AlignmentDirectional.bottomEnd,
+                          children: [
+                            Image.network(
+                              "https://instagram.fcai19-7.fna.fbcdn.net/v/t51.2885-19/334093423_932091597840436_2935192682114262128_n.jpg?stp=dst-jpg_s150x150&_nc_ht=instagram.fcai19-7.fna.fbcdn.net&_nc_cat=104&_nc_ohc=GgMMYtG57d8AX-lRw_t&edm=ALQROFkBAAAA&ccb=7-5&oh=00_AfCMs-w0DJHtJz8SuOs-QJ8M-UOgrRH-K_CftK_q1ZqJaQ&oe=64ACED74&_nc_sid=fc8dfb",
+                              fit: BoxFit.cover,
+                              height: 200,
+                              width: double.infinity,
+                            ),
+                            Padding(
+                              padding: const EdgeInsets.all(8.0),
+                              child: Text("Communicate with friends",
+                                  style: Theme.of(context)
+                                      .textTheme
+                                      .subtitle1!
+                                      .copyWith(color: Colors.white)),
+                            ),
+                          ],
+                        ),
+                      ),
+                      if (cubit.posts.length == cubit.usersPosts.length)
+                        cubit.posts.isEmpty && cubit.usersPosts.isEmpty
+                            ? const Center(child: CircularProgressIndicator())
+                            : ListView.separated(
+                                physics: const NeverScrollableScrollPhysics(),
+                                shrinkWrap: true,
+                                itemCount: cubit.posts.length,
+                                itemBuilder: (context, index) => buildPostItem(
+                                    cubit.posts[index],
+                                    cubit.usersPosts[index],
+                                    context,
+                                    index),
+                                separatorBuilder:
+                                    (BuildContext context, int index) =>
+                                        const SizedBox(
+                                  height: 10,
+                                ),
+                              ),
+                      const SizedBox(
+                        height: 10,
+                      ),
+                    ],
+                  ),
                 ),
-              ),
-              ListView.separated(
-                physics: const NeverScrollableScrollPhysics(),
-                shrinkWrap: true,
-                itemCount: cubit.usersPosts.length,
-                itemBuilder: (context, index) => buildPostItem(
-                    cubit.posts[index],
-                    cubit.usersPosts[index]
-                    ,context, index),
-                separatorBuilder: (BuildContext context, int index) =>
-                const SizedBox(
-                  height: 10,
-                ),
-              ),
-              const SizedBox(
-                height: 10,
-              ),
-            ],
-          ),
-        ), onRefresh: ()async{
-              cubit.getPost();
-        });
+                onRefresh: () async {
+                  cubit.getPost();
+                });
       },
     );
   }
 }
 
-Widget buildPostItem(PostModel model,UserModel userModel, context, index) => Card(
+Widget buildPostItem(PostModel model, UserModel userModel, context, index) =>
+    Card(
       elevation: 10,
       margin: const EdgeInsets.symmetric(horizontal: 8),
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
@@ -115,8 +123,9 @@ Widget buildPostItem(PostModel model,UserModel userModel, context, index) => Car
                         )
                       ],
                     ),
-
-                    Text(DateFormat('d MMMM y  hh:mm:a', 'en_US').format(DateTime.parse(model.dateTime!)),
+                    Text(
+                        DateFormat('d MMMM y  hh:mm:a', 'en_US')
+                            .format(DateTime.parse(model.dateTime!)),
                         style: Theme.of(context)
                             .textTheme
                             .caption!
@@ -209,7 +218,8 @@ Widget buildPostItem(PostModel model,UserModel userModel, context, index) => Car
                       padding: const EdgeInsets.symmetric(vertical: 5),
                       child: Row(
                         children: [
-                          SocialCubit.get(context).likeIs[index] == true
+                          // if(SocialCubit.get(context).likesUID[index].keys.contains(SocialCubit.get(context).postsId[index]))
+                          SocialCubit.get(context).likesUID[index] == true
                               ? const Icon(
                                   Icons.favorite,
                                   size: 20,
@@ -224,9 +234,7 @@ Widget buildPostItem(PostModel model,UserModel userModel, context, index) => Car
                             width: 5,
                           ),
                           Text(
-                            SocialCubit.get(context).likes[index] != null
-                                ? "${SocialCubit.get(context).likes[index]}"
-                                : "0",
+                            "${SocialCubit.get(context).likes[index]}",
                             style: Theme.of(context).textTheme.caption,
                           )
                         ],
@@ -291,19 +299,17 @@ Widget buildPostItem(PostModel model,UserModel userModel, context, index) => Car
                   )),
                   InkWell(
                     onTap: () {
-                      if (SocialCubit.get(context)
-                          .likesUID[index]
-                          .contains(SocialCubit.get(context).userModel!.uId!)) {
-                        SocialCubit.get(context).unLikePost(
+                      if (SocialCubit.get(context).likesUID[index] == false) {
+                        SocialCubit.get(context).likePost(
                             SocialCubit.get(context).postsId[index], index);
                       } else {
-                        SocialCubit.get(context).likePost(
+                        SocialCubit.get(context).unLikePost(
                             SocialCubit.get(context).postsId[index], index);
                       }
                     },
                     child: Row(
                       children: [
-                        SocialCubit.get(context).likeIs[index] == true
+                        SocialCubit.get(context).likesUID[index] == true
                             ? const Icon(
                                 Icons.favorite,
                                 size: 25,

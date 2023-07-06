@@ -24,11 +24,14 @@ class NewPostsScreen extends StatelessWidget {
                     cubit.createPost(
                         text: cubit.postController.text,
                         dateTime: DateTime.now().toString());
+                    Navigator.pop(context);
                   } else {
                     cubit.uploadPostImage(
                         text: cubit.postController.text,
                         dateTime: DateTime.now().toString());
+                    Navigator.pop(context);
                   }
+
                 },
                 text: "Post")
           ]),

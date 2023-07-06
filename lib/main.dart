@@ -1,6 +1,8 @@
 import 'package:firebase_core/firebase_core.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:kodixa_book/modules/login/login.dart';
 import 'package:kodixa_book/shared/bloc_observer.dart';
+import 'package:kodixa_book/shared/components/components.dart';
 import 'package:kodixa_book/shared/components/constants.dart';
 import 'package:kodixa_book/shared/cubit/cubit.dart';
 import 'package:kodixa_book/shared/cubit/states.dart';
@@ -13,10 +15,27 @@ import 'package:kodixa_book/shared/styles/themes.dart';
 import 'layout/cubit/cubit.dart';
 import 'layout/social_app.dart';
 
+Future<void> fireBaseMessagingBackgroundHandler(RemoteMessage message)async {
+  print(message.data.toString());
+  showToast(text: 'fireBaseMessagingBackgroundHandler', state: ToastStates.SUCCESS);
+}
+
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
   await Firebase.initializeApp();
+  var token=await FirebaseMessaging.instance.getToken();
+  print(token);
+
+  FirebaseMessaging.onMessage.listen((event) {
+    print(event.data.toString());
+    showToast(text: 'onMessage', state: ToastStates.SUCCESS);
+  });
+  FirebaseMessaging.onMessageOpenedApp.listen((event) {
+    print(event.data.toString());
+    showToast(text: 'onMessageOpenedApp', state: ToastStates.SUCCESS);
+  });
+  FirebaseMessaging.onBackgroundMessage((message) => fireBaseMessagingBackgroundHandler(message));
 
   Bloc.observer = MyBlocObserver();
   DioHelper.init();
