@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:kodixa_book/layout/cubit/states.dart';
+import 'package:kodixa_book/models/comment_model.dart';
 import 'package:kodixa_book/models/massage_model.dart';
 import 'package:kodixa_book/models/post_model.dart';
 import 'package:kodixa_book/models/user_model.dart';
@@ -29,7 +30,9 @@ class SocialCubit extends Cubit<SocialStates> {
   TextEditingController bioController = TextEditingController();
   TextEditingController postController = TextEditingController();
   TextEditingController textMassageController = TextEditingController();
+  TextEditingController textCommentController = TextEditingController();
   var formKey = GlobalKey<FormState>();
+  var formKeyComment = GlobalKey<FormState>();
   File? profileImage;
   File? coverImage;
   File? postImage;
@@ -271,8 +274,19 @@ class SocialCubit extends Cubit<SocialStates> {
       postsId.clear();
       likesUID.clear();
       likes.clear();
+      commentCount.clear();
+
       for (var elementt in event.docs) {
         emit(SocialGetPostOnlyLoadingState());
+        FirebaseFirestore.instance
+            .collection('posts')
+            .doc(elementt.reference.id)
+            .collection('comments')
+            .snapshots()
+            .listen((event) {
+          commentCount.add(event.docs.length);
+          emit(SocialGetCommentSuccessState());
+        });
         FirebaseFirestore.instance
             .collection('posts')
             .snapshots()
@@ -380,6 +394,66 @@ class SocialCubit extends Cubit<SocialStates> {
   List<dynamic> postOnly = [];
   int countPost = 0;
   int countPhotoPost = 0;
+
+  void sendComment({
+    required String postId,
+    required String dateTime,
+    required String text,
+  }) {
+    CommentModel model = CommentModel(
+      text: text,
+      senderId: userModel!.uId,
+      postId: postId,
+      dateTime: dateTime,
+    );
+
+    if (formKeyComment.currentState!.validate()) {
+      FirebaseFirestore.instance
+          .collection('posts')
+          .doc(postId)
+          .collection('comments')
+          .add(model.toMap())
+          .then((value) {
+        emit(SocialSendCommentSuccessState());
+      }).catchError((onError) {
+        print("Error Is $onError");
+        emit(SocialSendCommentErrorState(onError));
+      });
+
+      textCommentController.text = '';
+    }
+  }
+
+  List<dynamic> comment = [];
+  List<UserModel> usersComment = [];
+  List<int> commentCount = [];
+
+  void getComment({
+    required String postId,
+  }) {
+    FirebaseFirestore.instance
+        .collection('posts')
+        .doc(postId)
+        .collection('comments')
+        .snapshots()
+        .listen((event) {
+      comment.clear();
+      for (var element in event.docs) {
+        comment.add(element.data());
+        FirebaseFirestore.instance
+            .collection('users')
+            .doc(element['senderId'])
+            .snapshots()
+            .listen((value) {
+          usersComment.add(UserModel.fromJson(value.data()!));
+          emit(SocialGetAllUserSuccessState());
+          // getOnlyPost();
+        });
+      }
+      print(usersComment);
+      emit(SocialGetCommentSuccessState());
+    });
+  }
 
   void sendMassage({
     required String receiverId,

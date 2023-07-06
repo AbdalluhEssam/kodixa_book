@@ -6,6 +6,7 @@ import 'package:kodixa_book/layout/cubit/cubit.dart';
 import 'package:kodixa_book/layout/cubit/states.dart';
 import 'package:kodixa_book/models/post_model.dart';
 import 'package:kodixa_book/models/user_model.dart';
+import 'package:kodixa_book/shared/components/components.dart';
 import 'package:kodixa_book/shared/styles/colors.dart';
 import 'package:kodixa_book/shared/styles/icon_broken.dart';
 
@@ -34,8 +35,9 @@ class FeedsScreen extends StatelessWidget {
                         child: Stack(
                           alignment: AlignmentDirectional.bottomEnd,
                           children: [
-                            Image.network(
-                              "https://instagram.fcai19-7.fna.fbcdn.net/v/t51.2885-19/334093423_932091597840436_2935192682114262128_n.jpg?stp=dst-jpg_s150x150&_nc_ht=instagram.fcai19-7.fna.fbcdn.net&_nc_cat=104&_nc_ohc=GgMMYtG57d8AX-lRw_t&edm=ALQROFkBAAAA&ccb=7-5&oh=00_AfCMs-w0DJHtJz8SuOs-QJ8M-UOgrRH-K_CftK_q1ZqJaQ&oe=64ACED74&_nc_sid=fc8dfb",
+                            CachedNetworkImage(
+                              imageUrl:
+                                  "https://lh3.googleusercontent.com/a/AAcHTtddAEBJHQgG0JUODqWsw2AydU4qjyf5iZgvkWV_UVRV6Q=s288-c-no",
                               fit: BoxFit.cover,
                               height: 200,
                               width: double.infinity,
@@ -243,7 +245,130 @@ Widget buildPostItem(PostModel model, UserModel userModel, context, index) =>
                   )),
                   Expanded(
                       child: InkWell(
-                    onTap: () {},
+                    onTap: () {
+                      SocialCubit.get(context).getComment(
+                          postId: SocialCubit.get(context).postsId[index]);
+
+                      showModalBottomSheet(
+                        context: context,
+                        builder: (context) => Container(
+                            height: 500,
+                            alignment: Alignment.topCenter,
+                            padding: const EdgeInsets.symmetric(
+                                horizontal: 10, vertical: 30),
+                            child: SocialCubit.get(context).comment.isNotEmpty
+                                ? ListView.separated(
+                                    physics: const BouncingScrollPhysics(),
+                                    shrinkWrap: true,
+                                    itemBuilder: (context, index) => Card(
+                                      shape: RoundedRectangleBorder(
+                                          borderRadius:
+                                              BorderRadius.circular(8)),
+                                      clipBehavior: Clip.antiAliasWithSaveLayer,
+                                      elevation: 5,
+                                      child: Padding(
+                                        padding: const EdgeInsets.all(8.0),
+                                        child: Row(
+                                          mainAxisSize: MainAxisSize.min,
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.start,
+                                          children: [
+                                            CircleAvatar(
+                                              radius: 25,
+                                              backgroundImage:
+                                                  CachedNetworkImageProvider(
+                                                      SocialCubit.get(context)
+                                                          .usersComment[index]
+                                                          .image!),
+                                            ),
+                                            const SizedBox(
+                                              width: 15,
+                                            ),
+                                            Expanded(
+                                              child: Column(
+                                                crossAxisAlignment:
+                                                    CrossAxisAlignment.start,
+                                                children: [
+                                                  Row(
+                                                    children: [
+                                                      Text(
+                                                          SocialCubit.get(
+                                                                  context)
+                                                              .usersComment[
+                                                                  index]
+                                                              .name!,
+                                                          style:
+                                                              Theme.of(context)
+                                                                  .textTheme
+                                                                  .subtitle1!
+                                                                 ),
+                                                      const SizedBox(
+                                                        width: 5,
+                                                      ),
+                                                      const Icon(
+                                                        Icons.check_circle,
+                                                        color: defaultColor,
+                                                        size: 16,
+                                                      ),
+                                                      const Spacer(),
+                                                      Text(
+                                                          DateFormat(
+                                                                  'd MMMM y  hh:mm:a',
+                                                                  'en_US')
+                                                              .format(DateTime.parse(
+                                                                  SocialCubit.get(
+                                                                          context)
+                                                                      .comment[
+                                                                          index]
+                                                                          [
+                                                                          'dateTime']
+                                                                      .toString())),
+                                                          style:
+                                                              Theme.of(context)
+                                                                  .textTheme
+                                                                  .caption!
+                                                                  .copyWith(
+                                                                      height:
+                                                                          1.4)),
+                                                    ],
+                                                  ),
+                                                 const SizedBox(height: 5,),
+                                                  Text(
+                                                    SocialCubit.get(context)
+                                                        .comment[index]['text']
+                                                        .toString(),
+                                                    style: Theme.of(context)
+                                                        .textTheme
+                                                        .bodyText2!
+                                                        .copyWith(
+                                                            fontWeight:
+                                                                FontWeight
+                                                                    .bold,height: 1.4),
+                                                    textAlign: TextAlign.justify,
+                                                  ),
+                                                ],
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                                    ),
+                                    itemCount:
+                                        SocialCubit.get(context).comment.length,
+                                    separatorBuilder: (context, index) =>
+                                        const SizedBox(
+                                      height: 10,
+                                    ),
+                                  )
+                                : Center(
+                                    child: Text('There Are No Comments',
+                                        style: Theme.of(context)
+                                            .textTheme
+                                            .bodyText2!
+                                            .copyWith(height: 1.4)),
+                                  )),
+                      );
+                    },
                     child: Padding(
                       padding: const EdgeInsets.symmetric(vertical: 5),
                       child: Row(
@@ -258,7 +383,7 @@ Widget buildPostItem(PostModel model, UserModel userModel, context, index) =>
                             width: 5,
                           ),
                           Text(
-                            "120 Comment",
+                            "${SocialCubit.get(context).commentCount[index]} Comment",
                             style: Theme.of(context).textTheme.caption,
                           )
                         ],
@@ -279,7 +404,50 @@ Widget buildPostItem(PostModel model, UserModel userModel, context, index) =>
                 children: [
                   Expanded(
                       child: InkWell(
-                    onTap: () {},
+                    onTap: () {
+                      showModalBottomSheet(
+                        context: context,
+                        builder: (context) => Container(
+                          height: 450,
+                          alignment: Alignment.topCenter,
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 10, vertical: 30),
+                          child: Form(
+                            key: SocialCubit.get(context).formKeyComment,
+                            child: Row(
+                              children: [
+                                Expanded(
+                                  child: defaultTextFormField(
+                                      controller: SocialCubit.get(context)
+                                          .textCommentController,
+                                      keyboardType: TextInputType.text,
+                                      labelText: 'Comment',
+                                      icon: IconBroken.Message,
+                                      validator: (value) {
+                                        if (value!.isEmpty) {
+                                          return 'Enter Comment';
+                                        }
+                                        return null;
+                                      }),
+                                ),
+                                IconButton(
+                                    onPressed: () {
+                                      SocialCubit.get(context).sendComment(
+                                          postId: SocialCubit.get(context)
+                                              .postsId[index],
+                                          dateTime: DateTime.now().toString(),
+                                          text: SocialCubit.get(context)
+                                              .textCommentController
+                                              .text);
+                                      Navigator.pop(context);
+                                    },
+                                    icon: const Icon(IconBroken.Send))
+                              ],
+                            ),
+                          ),
+                        ),
+                      );
+                    },
                     child: Row(
                       children: [
                         CircleAvatar(

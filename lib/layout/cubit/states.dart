@@ -88,8 +88,22 @@ class SocialSendMessageErrorState extends SocialStates{
   SocialSendMessageErrorState(this.error);
 }
 
+
 class SocialGetMessageSuccessState extends SocialStates{}
 class SocialGetMessageErrorState extends SocialStates{
   final String error;
   SocialGetMessageErrorState(this.error);
+}
+
+
+class SocialSendCommentSuccessState extends SocialStates{}
+class SocialSendCommentErrorState extends SocialStates{
+  final String error;
+  SocialSendCommentErrorState(this.error);
+}
+
+class SocialGetCommentSuccessState extends SocialStates{}
+class SocialGetCommentErrorState extends SocialStates{
+  final String error;
+  SocialGetCommentErrorState(this.error);
 }

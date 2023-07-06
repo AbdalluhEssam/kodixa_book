@@ -15,7 +15,7 @@ import 'package:kodixa_book/shared/styles/themes.dart';
 import 'layout/cubit/cubit.dart';
 import 'layout/social_app.dart';
 
-Future<void> fireBaseMessagingBackgroundHandler(RemoteMessage message)async {
+Future<void> fireBaseMessagingBackgroundHandler(RemoteMessage message) async {
   print(message.data.toString());
   showToast(text: 'fireBaseMessagingBackgroundHandler', state: ToastStates.SUCCESS);
 }

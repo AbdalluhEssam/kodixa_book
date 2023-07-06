@@ -1,4 +1,5 @@
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter/material.dart';
 import 'package:kodixa_book/layout/cubit/cubit.dart';
@@ -20,7 +21,7 @@ class SettingsScreen extends StatelessWidget {
       builder: (context, state) {
         var cubit = SocialCubit.get(context);
         return SingleChildScrollView(
-          physics:const  BouncingScrollPhysics(),
+          physics: const BouncingScrollPhysics(),
           child: Column(
             children: [
               SizedBox(
@@ -173,6 +174,46 @@ class SettingsScreen extends StatelessWidget {
                   ],
                 ),
               ),
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 20),
+                child: Row(
+                  children: [
+                    Expanded(
+                      child: OutlinedButton(
+                          onPressed: () {
+                           FirebaseMessaging.instance.subscribeToTopic("chats");
+                          },
+                          child: Row(
+                            children: const [
+                              Icon(IconBroken.Notification),
+                              SizedBox(
+                                width: 15,
+                              ),
+                              Text("Subscribe"),
+                            ],
+                          )),
+                    ),
+                    const SizedBox(
+                      width: 15,
+                    ),
+                    Expanded(
+                        child: OutlinedButton(
+                            onPressed: () {
+                              FirebaseMessaging.instance.unsubscribeFromTopic("chats");
+
+                            },
+                            child: Row(
+                              children: const [
+                                Icon(Icons.notifications_off_outlined),
+                                SizedBox(
+                                  width: 15,
+                                ),
+                                Text("UnSubscribe"),
+                              ],
+                            ))),
+                  ],
+                ),
+              ),
               const SizedBox(
                 height: 15,
               ),
@@ -180,14 +221,16 @@ class SettingsScreen extends StatelessWidget {
                 physics: const NeverScrollableScrollPhysics(),
                 shrinkWrap: true,
                 itemCount: cubit.postOnly.length,
-                itemBuilder: (context, index) =>
-                    buildPostItem(PostModel.fromJson(cubit.postOnly[index]),cubit.usersPosts[index] ,context, index),
+                itemBuilder: (context, index) => buildPostItem(
+                    PostModel.fromJson(cubit.postOnly[index]),
+                    cubit.usersPosts[index],
+                    context,
+                    index),
                 separatorBuilder: (BuildContext context, int index) =>
-                const SizedBox(
+                    const SizedBox(
                   height: 10,
                 ),
               ),
-
               const SizedBox(
                 height: 10,
               ),
