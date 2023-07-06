@@ -65,17 +65,13 @@ class EditProfileScreen extends StatelessWidget {
                                     image: cubit.coverImage == null
                                         ? DecorationImage(
                                             fit: BoxFit.cover,
-                                            alignment:
-                                                const AlignmentDirectional(
-                                                    0, -1),
+
                                             image: CachedNetworkImageProvider(
                                                 cubit.userModel!.cover
                                                     .toString()))
                                         : DecorationImage(
                                             fit: BoxFit.cover,
-                                            alignment:
-                                                const AlignmentDirectional(
-                                                    0, -1),
+                                         
                                             image:
                                                 FileImage(cubit.coverImage!))),
                               ),

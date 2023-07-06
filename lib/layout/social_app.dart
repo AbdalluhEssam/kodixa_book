@@ -4,6 +4,7 @@ import 'package:kodixa_book/layout/cubit/cubit.dart';
 import 'package:kodixa_book/layout/cubit/states.dart';
 import 'package:kodixa_book/modules/new_posts/new_posts.dart';
 import 'package:kodixa_book/shared/components/components.dart';
+import 'package:kodixa_book/shared/components/constants.dart';
 import 'package:kodixa_book/shared/styles/icon_broken.dart';
 
 class SocialAppLayout extends StatelessWidget {
@@ -13,8 +14,13 @@ class SocialAppLayout extends StatelessWidget {
   Widget build(BuildContext context) {
     return BlocConsumer<SocialCubit, SocialStates>(
       listener: (context, state) {
-        if(state is SocialNewPostState){
+        if (state is SocialNewPostState) {
           navigateTo(context, const NewPostsScreen());
+        }
+        if (state is SocialGetUserLoadingState) {
+          const Center(
+            child: CircularProgressIndicator(),
+          );
         }
       },
       builder: (context, state) {
@@ -22,36 +28,57 @@ class SocialAppLayout extends StatelessWidget {
         return Scaffold(
           appBar: AppBar(
             titleSpacing: 5,
-            title:  Row(
+            title: Row(
               children: [
-                Image.asset("assets/images/bookSmall.png",height: 45, fit: BoxFit.cover,),
-                const SizedBox(width: 8,),
+                Image.asset(
+                  "assets/images/bookSmall.png",
+                  height: 45,
+                  fit: BoxFit.cover,
+                ),
+                const SizedBox(
+                  width: 8,
+                ),
                 Text(cubit.title[cubit.currentIndex])
               ],
             ),
             actions: [
-              IconButton(onPressed: (){}, icon: const Icon(IconBroken.Notification)),
-              IconButton(onPressed: (){}, icon: const Icon(IconBroken.Search)),
+              IconButton(
+                  onPressed: () {}, icon: const Icon(IconBroken.Notification)),
+              IconButton(onPressed: () {}, icon: const Icon(IconBroken.Search)),
             ],
           ),
-          body: cubit.screens[cubit.currentIndex],
+          body: uId.isNotEmpty
+              ? cubit.screens[cubit.currentIndex]
+              : const Center(
+                  child: CircularProgressIndicator(),
+                ),
           floatingActionButton: FloatingActionButton(
-            onPressed: (){
+            onPressed: () {
               navigateTo(context, const NewPostsScreen());
-            }, child:   const Icon(IconBroken.Paper_Upload),),
-          floatingActionButtonLocation: FloatingActionButtonLocation.miniCenterDocked,
-
+            },
+            child: const Icon(IconBroken.Paper_Upload),
+          ),
+          floatingActionButtonLocation:
+              FloatingActionButtonLocation.miniCenterDocked,
           bottomNavigationBar: BottomNavigationBar(
               currentIndex: cubit.currentIndex,
               onTap: (index) {
                 cubit.changeBottomNav(index);
               },
               items: const [
-                BottomNavigationBarItem(icon: Icon(IconBroken.Home), label: 'Home'),
-                BottomNavigationBarItem(icon: Icon(IconBroken.Chat), label: 'Chat'),
-                BottomNavigationBarItem(icon: SizedBox(height: 25,), label: 'Post'),
-                BottomNavigationBarItem(icon: Icon(IconBroken.Location), label: 'Users'),
-                BottomNavigationBarItem(icon: Icon(IconBroken.Profile), label: 'Profile'),
+                BottomNavigationBarItem(
+                    icon: Icon(IconBroken.Home), label: 'Home'),
+                BottomNavigationBarItem(
+                    icon: Icon(IconBroken.Chat), label: 'Chat'),
+                BottomNavigationBarItem(
+                    icon: SizedBox(
+                      height: 25,
+                    ),
+                    label: 'Post'),
+                BottomNavigationBarItem(
+                    icon: Icon(IconBroken.Location), label: 'Users'),
+                BottomNavigationBarItem(
+                    icon: Icon(IconBroken.Profile), label: 'Profile'),
               ]),
         );
       },

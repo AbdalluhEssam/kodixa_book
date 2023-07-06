@@ -13,9 +13,11 @@ import 'package:kodixa_book/modules/chats/chats.dart';
 import 'package:kodixa_book/modules/feeds/Feeds.dart';
 import 'package:kodixa_book/modules/settings/settings.dart';
 import 'package:kodixa_book/modules/users/users.dart';
-import 'package:kodixa_book/shared/components/constants.dart';
 import '../../modules/new_posts/new_posts.dart';
 import 'package:firebase_storage/firebase_storage.dart' as firebase_storage;
+
+import '../../shared/components/constants.dart';
+import '../../shared/network/local/cache_helper.dart';
 
 class SocialCubit extends Cubit<SocialStates> {
   SocialCubit() : super(SocialInitialState());
@@ -76,15 +78,24 @@ class SocialCubit extends Cubit<SocialStates> {
     }
   }
 
-  void getUserData() {
+  void getUserData() async {
+    uId = await CacheHelper.getData(key: 'uId');
     emit(SocialGetUserLoadingState());
-    FirebaseFirestore.instance.collection('users').doc(uId).get().then((value) {
-      userModel = UserModel.fromJson(value.data()!);
-      emit(SocialGetUserSuccessState());
-    }).catchError((onError) {
-      print("error is $onError");
-      emit(SocialGetUserErrorState(onError));
-    });
+    if (uId.isNotEmpty) {
+      await FirebaseFirestore.instance
+          .collection('users')
+          .doc(uId)
+          .get()
+          .then((value) {
+        userModel = UserModel.fromJson(value.data()!);
+        emit(SocialGetUserSuccessState());
+      }).catchError((onError) {
+        print("error is $onError");
+        emit(SocialGetUserErrorState(onError));
+      });
+      getPost();
+      getPostOnly();
+    }
   }
 
   int currentIndex = 0;
@@ -258,8 +269,10 @@ class SocialCubit extends Cubit<SocialStates> {
   List<String> postsId = [];
   List<int> likes = [];
   List<bool> likesUID = [];
-
   List<UserModel> users = [];
+  List<dynamic> comment = [];
+  List<UserModel> usersComment = [];
+  List<int> commentCount = [];
   List<UserModel> usersPosts = [];
 
   void getPost() {
@@ -285,28 +298,11 @@ class SocialCubit extends Cubit<SocialStates> {
             .snapshots()
             .listen((event) {
           commentCount.add(event.docs.length);
-          emit(SocialGetCommentSuccessState());
+          emit(SocialGetCommentOnlySuccessState());
         });
-        FirebaseFirestore.instance
-            .collection('posts')
-            .snapshots()
-            .listen((event) {
-          postOnly.clear();
-          countPost = 0;
-          countPhotoPost = 0;
-          for (var element in event.docs) {
-            if (element['uId'] == userModel!.uId) {
-              postOnly.add(element.data());
-              countPost++;
-              if (element['postImage'] != '') {
-                countPhotoPost++;
-              }
-            }
-          }
-          emit(SocialGetPostOnlySuccessState());
-        });
+
         posts.add(PostModel.fromJson(elementt.data()));
-        postsId.add(elementt.id);
+        postsId.add(elementt.reference.id);
 
         FirebaseFirestore.instance
             .collection('users')
@@ -330,12 +326,103 @@ class SocialCubit extends Cubit<SocialStates> {
             break;
           }
           print(likesUID);
-          emit(SocialLikePostSuccessState());
+          emit(SocialLikePostOnlySuccessState());
         });
       }
 
       getAllUsers();
-      emit(SocialGetPostSuccessState());
+      emit(SocialGetPostOnlySuccessState());
+    });
+  }
+
+  void getCommentOnly({
+    required String postId,
+  }) {
+    FirebaseFirestore.instance
+        .collection('posts')
+        .doc(postId)
+        .collection('comments')
+        .snapshots()
+        .listen((event) {
+      commentPostOnly.clear();
+      for (var element in event.docs) {
+        commentPostOnly.add(element.data());
+        FirebaseFirestore.instance
+            .collection('users')
+            .doc(element.data()['senderId'])
+            .snapshots()
+            .listen((value) {
+          usersCommentPostOnly.add(UserModel.fromJson(value.data()!));
+          emit(SocialGetAllUserOnlySuccessState());
+          // getOnlyPost();
+        });
+      }
+      print(commentPostOnly);
+      emit(SocialGetCommentOnlySuccessState());
+    });
+  }
+
+  void getPostOnly() {
+    usersPostOnly.clear();
+    emit(SocialGetPostOnlyLoadingState());
+    FirebaseFirestore.instance
+        .collection('posts')
+        .orderBy("dateTime", descending: true)
+        .snapshots()
+        .listen((event) {
+      postsIdOnly.clear();
+      likesUIDPostOnly.clear();
+      likesPostOnly.clear();
+      likesPostOnly.clear();
+      commentCountPostOnly.clear();
+      postOnly.clear();
+      countPost = 0;
+      countPhotoPost = 0;
+      for (var element in event.docs) {
+        if (element['uId'] == userModel!.uId) {
+          postOnly.add(element.data());
+          countPost++;
+          emit(SocialGetPostOnlyLoadingState());
+          FirebaseFirestore.instance
+              .collection('posts')
+              .doc(element.reference.id)
+              .collection('comments')
+              .snapshots()
+              .listen((event) {
+            commentCountPostOnly.add(event.docs.length);
+            emit(SocialGetCommentOnlySuccessState());
+          });
+
+          postsIdOnly.add(element.reference.id);
+          FirebaseFirestore.instance
+              .collection('users')
+              .doc(element['uId'])
+              .snapshots()
+              .listen((value) {
+            usersPostOnly.add(UserModel.fromJson(value.data()!));
+            emit(SocialGetAllUserSuccessState());
+            // getOnlyPost();
+          });
+          element.reference.collection('likes').snapshots().listen((event) {
+            likesPostOnly.add(event.docs.length);
+            for (var element in event.docs.reversed) {
+              if (userModel!.uId! != element.reference.id) {
+                likesUIDPostOnly.add(false);
+              }
+
+              if (userModel!.uId! == element.reference.id) {
+                likesUIDPostOnly.add(true);
+              }
+              break;
+            }
+            emit(SocialLikePostOnlySuccessState());
+          });
+          if (element['postImage'] != '') {
+            countPhotoPost++;
+          }
+        }
+      }
+      emit(SocialGetPostOnlySuccessState());
     });
   }
 
@@ -394,6 +481,13 @@ class SocialCubit extends Cubit<SocialStates> {
   List<dynamic> postOnly = [];
   int countPost = 0;
   int countPhotoPost = 0;
+  List<String> postsIdOnly = [];
+  List<int> likesPostOnly = [];
+  List<bool> likesUIDPostOnly = [];
+  List<UserModel> usersPostOnly = [];
+  List<dynamic> commentPostOnly = [];
+  List<UserModel> usersCommentPostOnly = [];
+  List<int> commentCountPostOnly = [];
 
   void sendComment({
     required String postId,
@@ -424,9 +518,9 @@ class SocialCubit extends Cubit<SocialStates> {
     }
   }
 
-  List<dynamic> comment = [];
-  List<UserModel> usersComment = [];
-  List<int> commentCount = [];
+  // List<dynamic> comment = [];
+  // List<UserModel> usersComment = [];
+  // List<int> commentCount = [];
 
   void getComment({
     required String postId,

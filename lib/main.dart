@@ -1,5 +1,6 @@
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
+import 'package:flutter/foundation.dart';
 import 'package:kodixa_book/modules/login/login.dart';
 import 'package:kodixa_book/shared/bloc_observer.dart';
 import 'package:kodixa_book/shared/components/components.dart';
@@ -15,36 +16,32 @@ import 'package:kodixa_book/shared/styles/themes.dart';
 import 'layout/cubit/cubit.dart';
 import 'layout/social_app.dart';
 
-Future<void> fireBaseMessagingBackgroundHandler(RemoteMessage message) async {
-  print(message.data.toString());
-  showToast(text: 'fireBaseMessagingBackgroundHandler', state: ToastStates.SUCCESS);
-}
-
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-
+  Bloc.observer = MyBlocObserver();
+  await DioHelper.init();
   await Firebase.initializeApp();
-  var token=await FirebaseMessaging.instance.getToken();
-  print(token);
+  var token = await FirebaseMessaging.instance.getToken();
+  if (kDebugMode) {
+    print(token);
+  }
 
   FirebaseMessaging.onMessage.listen((event) {
-    print(event.data.toString());
     showToast(text: 'onMessage', state: ToastStates.SUCCESS);
   });
   FirebaseMessaging.onMessageOpenedApp.listen((event) {
-    print(event.data.toString());
     showToast(text: 'onMessageOpenedApp', state: ToastStates.SUCCESS);
   });
-  FirebaseMessaging.onBackgroundMessage((message) => fireBaseMessagingBackgroundHandler(message));
 
-  Bloc.observer = MyBlocObserver();
-  DioHelper.init();
   await CacheHelper.init();
-  // bool isDark = CacheHelper.getData(key: 'isDark');
   Widget widget;
-  uId = CacheHelper.getData(key: 'uId');
+  if (await CacheHelper.getData(key: 'uId') != null) {
+    uId = await CacheHelper.getData(key: 'uId');
+  } else {
+    uId = '';
+  }
 
-  if (uId != null) {
+  if (uId.isNotEmpty) {
     widget = const SocialAppLayout();
   } else {
     widget = const LohInScreen();
@@ -64,11 +61,11 @@ class MyApp extends StatelessWidget {
     return MultiBlocProvider(
       providers: [
         BlocProvider(
-          create: (context) =>
-              AppCubit()..changeDarkModeSheet(formShared: isDark!),
+          create: (context) => SocialCubit()..getUserData(),
         ),
         BlocProvider(
-          create: (context) => SocialCubit()..getUserData()..getPost(),
+          create: (context) =>
+              AppCubit()..changeDarkModeSheet(formShared: isDark!),
         ),
       ],
       child: BlocConsumer<AppCubit, AppStates>(

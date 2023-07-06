@@ -15,6 +15,13 @@ class SocialGetAllUserErrorState extends SocialStates{
   SocialGetAllUserErrorState(this.error);
 }
 
+class SocialGetAllUserOnlyLoadingState extends SocialStates{}
+class SocialGetAllUserOnlySuccessState extends SocialStates{}
+class SocialGetAllUserOnlyErrorState extends SocialStates{
+  final String error;
+  SocialGetAllUserOnlyErrorState(this.error);
+}
+
 class SocialGetUserPostLoadingState extends SocialStates{}
 class SocialGetUserPostSuccessState extends SocialStates{}
 class SocialGetUserPostErrorState extends SocialStates{
@@ -71,6 +78,14 @@ class SocialLikePostErrorState extends SocialStates{
   final String error;
   SocialLikePostErrorState(this.error);
 }
+//////////// Like POST ////////////////
+class SocialLikePostOnlyLoadingState extends SocialStates{}
+
+class SocialLikePostOnlySuccessState extends SocialStates{}
+class SocialLikePostOnlyErrorState extends SocialStates{
+  final String error;
+  SocialLikePostOnlyErrorState(this.error);
+}
 class SocialUnLikePostSuccessState extends SocialStates{}
 
 class SocialUnLikePostErrorState extends SocialStates{
@@ -106,4 +121,10 @@ class SocialGetCommentSuccessState extends SocialStates{}
 class SocialGetCommentErrorState extends SocialStates{
   final String error;
   SocialGetCommentErrorState(this.error);
+}
+
+class SocialGetCommentOnlySuccessState extends SocialStates{}
+class SocialGetCommentOnlyErrorState extends SocialStates{
+  final String error;
+  SocialGetCommentOnlyErrorState(this.error);
 }

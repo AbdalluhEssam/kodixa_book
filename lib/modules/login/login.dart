@@ -1,11 +1,11 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:fluttertoast/fluttertoast.dart';
 import 'package:kodixa_book/shared/components/components.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:kodixa_book/shared/components/constants.dart';
 import 'package:kodixa_book/shared/network/local/cache_helper.dart';
-
+import '../../layout/cubit/cubit.dart';
 import '../../layout/social_app.dart';
 import '../register/Register.dart';
 import 'cubit/cubit.dart';
@@ -16,23 +16,20 @@ class LohInScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+
     return BlocProvider(
       create: (context) => LogInCubit(),
       child: BlocConsumer<LogInCubit, LogInStates>(
-        listener: (context, state) {
+        listener: (context, state)async {
           if (state is LogInErrorState) {
-            Fluttertoast.showToast(
-                msg: "Error is ${state.error}",
-                toastLength: Toast.LENGTH_SHORT,
-                gravity: ToastGravity.BOTTOM,
-                timeInSecForIosWeb: 1,
-                backgroundColor: Colors.blue,
-                textColor: Colors.white,
-                fontSize: 16.0);
+            showToast(text: "Error is ${state.error}", state: ToastStates.ERROR);
           }
+
           if (state is LogInSuccessState) {
-            CacheHelper.saveData(key: 'uId', value: state.uId.toString()).then((value) {
+            await  CacheHelper.saveData(key: 'uId', value: state.uId.toString()).then((value) {
               navigateAndFinish(context, const SocialAppLayout());
+            }).catchError((onError){
+              print("Error LogIn is $onError");
             });
           }
         },

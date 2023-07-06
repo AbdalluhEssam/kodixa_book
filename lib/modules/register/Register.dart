@@ -5,6 +5,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import '../../layout/social_app.dart';
+import '../../shared/network/local/cache_helper.dart';
 import '../login/login.dart';
 import 'cubit/states.dart';
 
@@ -16,9 +17,14 @@ class RegisterScreen extends StatelessWidget {
     return BlocProvider(
       create: (context) => RegisterCubit(),
       child: BlocConsumer<RegisterCubit, RegisterStates>(
-        listener: (context, state) {
+        listener: (context, state) async{
           if(state is CreateUserSuccessState){
-            navigateAndFinish(context, const SocialAppLayout());
+           await CacheHelper.saveData(key: 'uId', value: state.uId.toString()).then((value) {
+              navigateAndFinish(context, const SocialAppLayout());
+            }).catchError((onError){
+              print(onError);
+            });
+
           }
         },
         builder: (context, state) {
@@ -146,19 +152,13 @@ class RegisterScreen extends StatelessWidget {
                           ),
                           defaultButton(
                               text: "Register",
-                              onPressed: () {
-                                if (cubit.formState.currentState!.validate()) {
-                                  if (kDebugMode) {
-                                    print(cubit.email.text);
-                                    print(cubit.password.text);
-                                  }
-
+                              onPressed: () async {
                                   cubit.userRegister(
                                       name: cubit.userName.text,
                                       email: cubit.email.text,
                                       password: cubit.password.text,
                                       phone: cubit.phone.text);
-                                }
+
                               }),
                           const SizedBox(
                             height: 10,

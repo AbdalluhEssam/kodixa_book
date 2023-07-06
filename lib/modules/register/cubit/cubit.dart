@@ -1,12 +1,11 @@
 // ignore_for_file: avoid_print
-
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:fluttertoast/fluttertoast.dart';
 import 'package:kodixa_book/models/user_model.dart';
 import 'package:kodixa_book/modules/register/cubit/states.dart';
+import 'package:kodixa_book/shared/components/components.dart';
 
 class RegisterCubit extends Cubit<RegisterStates> {
   RegisterCubit() : super(RegisterInitialState());
@@ -31,29 +30,20 @@ class RegisterCubit extends Cubit<RegisterStates> {
     required String password,
     required String phone,
   }) {
+    if (formState.currentState!.validate()) {
     emit(RegisterLoadingState());
-    FirebaseAuth.instance
-        .createUserWithEmailAndPassword(
+    FirebaseAuth.instance.createUserWithEmailAndPassword(
       email: email,
       password: password,
-    )
-        .then((value) {
-      print(value.user!.email);
-      print(value.user!.uid);
+    ).then((value) {
       userCreate(name: name, email: email, phone: phone, uId: value.user!.uid);
-      Fluttertoast.showToast(
-          msg: "Register Success",
-          toastLength: Toast.LENGTH_SHORT,
-          gravity: ToastGravity.BOTTOM,
-          timeInSecForIosWeb: 1,
-          backgroundColor: Colors.blue,
-          textColor: Colors.white,
-          fontSize: 16.0);
-      // emit(RegisterSuccessState());
+      showToast(text: "Register Success", state: ToastStates.SUCCESS);
+      emit(RegisterSuccessState());
     }).catchError((onError) {
       print("Error is $onError");
       emit(RegisterErrorState(onError));
     });
+    }
   }
 
   void userCreate({
@@ -77,7 +67,7 @@ class RegisterCubit extends Cubit<RegisterStates> {
         .doc(uId)
         .set(model.toMap())
         .then((value) {
-      emit(CreateUserSuccessState());
+      emit(CreateUserSuccessState(uId));
     }).catchError((onError) {
       print("Error is $onError");
       emit(CreateUserErrorState(onError));
