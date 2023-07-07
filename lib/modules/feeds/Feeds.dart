@@ -6,7 +6,6 @@ import 'package:kodixa_book/layout/cubit/cubit.dart';
 import 'package:kodixa_book/layout/cubit/states.dart';
 import 'package:kodixa_book/models/post_model.dart';
 import 'package:kodixa_book/models/user_model.dart';
-import 'package:kodixa_book/modules/users/users.dart';
 import 'package:kodixa_book/shared/components/components.dart';
 import 'package:kodixa_book/shared/styles/colors.dart';
 import 'package:kodixa_book/shared/styles/icon_broken.dart';
