@@ -20,7 +20,9 @@ class RegisterScreen extends StatelessWidget {
         listener: (context, state) async{
           if(state is CreateUserSuccessState){
            await CacheHelper.saveData(key: 'uId', value: state.uId.toString()).then((value) {
-              navigateAndFinish(context, const SocialAppLayout());
+             if(CacheHelper.getData(key: 'uId') != null){
+               navigateAndFinish(context, const SocialAppLayout());
+             }
             }).catchError((onError){
               print(onError);
             });
