@@ -1,5 +1,4 @@
 import 'package:cached_network_image/cached_network_image.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
@@ -7,7 +6,6 @@ import 'package:kodixa_book/shared/styles/colors.dart';
 import '../../layout/cubit/cubit.dart';
 import '../../layout/cubit/states.dart';
 import '../../models/user_model.dart';
-import '../../shared/components/components.dart';
 import '../../shared/styles/icon_broken.dart';
 
 class UsersScreen extends StatelessWidget {
@@ -26,13 +24,12 @@ class UsersScreen extends StatelessWidget {
                   ? const Center(
                       child: CircularProgressIndicator(),
                     )
-                  : ListView.separated(
+                  : ListView.builder(
                       physics: const BouncingScrollPhysics(),
                       itemCount: cubit.users.length,
                       itemBuilder: (context, index) =>
                           buildChatItem(cubit.users[index], context),
-                      separatorBuilder: (BuildContext context, int index) =>
-                          myDivider(),
+
                     )),
         );
       },
@@ -42,7 +39,7 @@ class UsersScreen extends StatelessWidget {
   Widget buildChatItem(UserModel userModel, context) => InkWell(
         child: Card(
           color: defaultColor.shade50,
-          margin: const EdgeInsets.symmetric(vertical: 10, horizontal: 5),
+          margin: const EdgeInsets.symmetric(vertical: 8, horizontal: 8),
           elevation: 5,
           child: Padding(
             padding: const EdgeInsets.all(10),

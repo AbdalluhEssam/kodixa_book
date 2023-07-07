@@ -65,13 +65,13 @@ class ChatsDetailsScreen extends StatelessWidget {
                       onPressed: () {}, icon: const Icon(IconBroken.Call)),
                 ],
               ),
-              body: cubit.messages.isNotEmpty
-                  ? Padding(
-                      padding: const EdgeInsets.all(10),
-                      child: Column(
-                        children: [
-                          Expanded(
-                              child: Padding(
+              body: Padding(
+                padding: const EdgeInsets.all(10),
+                child: Column(
+                  children: [
+                    cubit.messages.isNotEmpty
+                        ? Expanded(
+                            child: Padding(
                             padding: const EdgeInsets.all(10),
                             child: ListView.separated(
                                 physics: const BouncingScrollPhysics(),
@@ -88,62 +88,64 @@ class ChatsDetailsScreen extends StatelessWidget {
                                       height: 8,
                                     ),
                                 itemCount: cubit.messages.length),
-                          )),
-                          Container(
-                              clipBehavior: Clip.antiAliasWithSaveLayer,
-                              decoration: BoxDecoration(
-                                  border: Border.all(
-                                    color: Colors.grey[300]!,
-                                    width: 1,
-                                  ),
-                                  borderRadius: BorderRadius.circular(15)),
-                              child: Form(
-                                key: cubit.formKey,
-                                child: Row(
-                                  children: [
-                                    Expanded(
-                                        child: TextFormField(
-                                      controller: cubit.textMassageController,
-                                      validator: (value) {
-                                        if (value!.isEmpty) {
-                                          return 'not message';
-                                        }
-                                        return null;
-                                      },
-                                      decoration: const InputDecoration(
-                                          contentPadding: EdgeInsets.symmetric(
-                                              horizontal: 10),
-                                          hintText: 'type your message here...',
-                                          border: InputBorder.none),
-                                    )),
-                                    Container(
-                                        height: 50,
-                                        color: defaultColor,
-                                        child: MaterialButton(
-                                          minWidth: 1,
-                                          onPressed: () {
-                                            cubit.sendMassage(
-                                                receiverId: userModel.uId!,
-                                                dateTime:
-                                                    DateTime.now().toString(),
-                                                text: cubit
-                                                    .textMassageController
-                                                    .text);
-                                          },
-                                          child: const Icon(
-                                            IconBroken.Send,
-                                            color: Colors.white,
-                                          ),
-                                        ))
-                                  ],
-                                ),
-                              ))
-                        ],
-                      ),
-                    )
-                  : const Center(
-                      child: CircularProgressIndicator(),
-                    ),
+                          ))
+                        : Expanded(
+                            child: Center(
+                                child: Text(
+                              "New Chat With ${userModel.name}",
+                              style: Theme.of(context).textTheme.bodyLarge,
+                            )),
+                          ),
+                    Container(
+                        clipBehavior: Clip.antiAliasWithSaveLayer,
+                        decoration: BoxDecoration(
+                            border: Border.all(
+                              color: Colors.grey[300]!,
+                              width: 1,
+                            ),
+                            borderRadius: BorderRadius.circular(15)),
+                        child: Form(
+                          key: cubit.formKey,
+                          child: Row(
+                            children: [
+                              Expanded(
+                                  child: TextFormField(
+                                controller: cubit.textMassageController,
+                                validator: (value) {
+                                  if (value!.isEmpty) {
+                                    return 'not message';
+                                  }
+                                  return null;
+                                },
+                                decoration: const InputDecoration(
+                                    contentPadding:
+                                        EdgeInsets.symmetric(horizontal: 10),
+                                    hintText: 'type your message here...',
+                                    border: InputBorder.none),
+                              )),
+                              Container(
+                                  height: 50,
+                                  color: defaultColor,
+                                  child: MaterialButton(
+                                    minWidth: 1,
+                                    onPressed: () {
+                                      cubit.sendMassage(
+                                          receiverId: userModel.uId!,
+                                          dateTime: DateTime.now().toString(),
+                                          text:
+                                              cubit.textMassageController.text);
+                                    },
+                                    child: const Icon(
+                                      IconBroken.Send,
+                                      color: Colors.white,
+                                    ),
+                                  ))
+                            ],
+                          ),
+                        ))
+                  ],
+                ),
+              ),
             );
           },
         );
