@@ -24,14 +24,17 @@ class NewPostsScreen extends StatelessWidget {
                     cubit.createPost(
                         text: cubit.postController.text,
                         dateTime: DateTime.now().toString());
-                    Navigator.pop(context);
+                    if (state is SocialCreatePostSuccessState) {
+                      Navigator.pop(context);
+                    }
                   } else {
                     cubit.uploadPostImage(
                         text: cubit.postController.text,
                         dateTime: DateTime.now().toString());
-                    Navigator.pop(context);
+                    if (state is SocialCreatePostSuccessState) {
+                      Navigator.pop(context);
+                    }
                   }
-
                 },
                 text: "Post")
           ]),
@@ -75,7 +78,8 @@ class NewPostsScreen extends StatelessWidget {
                     children: [
                       CircleAvatar(
                         radius: 25,
-                        backgroundImage: CachedNetworkImageProvider(cubit.userModel!.image!),
+                        backgroundImage:
+                            CachedNetworkImageProvider(cubit.userModel!.image!),
                       ),
                       const SizedBox(
                         width: 15,

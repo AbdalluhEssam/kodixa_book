@@ -229,9 +229,8 @@ class SocialCubit extends Cubit<SocialStates> {
         .then((value) {
       value.ref.getDownloadURL().then((value) {
         print("URL is $value");
-        emit(SocialCreatePostSuccessState());
         createPost(text: text, dateTime: dateTime, postImage: value.toString());
-        Navigator.pop(context);
+        emit(SocialCreatePostSuccessState());
       }).catchError((onError) {
         emit(SocialCreatePostErrorState());
       });
@@ -458,6 +457,7 @@ class SocialCubit extends Cubit<SocialStates> {
   }
 
   void getAllUsers() {
+    users.clear();
     emit(SocialGetAllUserLoadingState());
     FirebaseFirestore.instance.collection('users').get().then((event) {
       for (var element in event.docs) {
@@ -506,7 +506,6 @@ class SocialCubit extends Cubit<SocialStates> {
           .add(model.toMap())
           .then((value) {
         commentCount[index]++;
-        commentCountPostOnly[index]++;
         emit(SocialSendCommentSuccessState());
       }).catchError((onError) {
         print("Error Is $onError");

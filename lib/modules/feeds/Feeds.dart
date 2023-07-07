@@ -187,6 +187,7 @@ Widget buildPostItem(PostModel model, UserModel userModel, context, index) =>
                         const SizedBox(
                           width: 5,
                         ),
+                        if(userModel.uId == "FpyOUSvnANhvIPrwdfIUdpu3pUX2")
                         const Icon(
                           Icons.check_circle,
                           color: defaultColor,
