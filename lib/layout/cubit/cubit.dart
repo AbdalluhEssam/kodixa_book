@@ -285,8 +285,6 @@ class SocialCubit extends Cubit<SocialStates> {
         .listen((event) {
       posts.clear();
       postsId.clear();
-      likesUID.clear();
-      likes.clear();
       commentCount.clear();
 
       for (var elementt in event.docs) {
@@ -315,15 +313,14 @@ class SocialCubit extends Cubit<SocialStates> {
         });
         elementt.reference.collection('likes').snapshots().listen((event) {
           likes.add(event.docs.length);
-          for (var element in event.docs.reversed) {
+          for (var element in event.docs) {
             if (userModel!.uId! != element.reference.id) {
               likesUID.add(false);
             }
-
             if (userModel!.uId! == element.reference.id) {
               likesUID.add(true);
             }
-            break;
+            // break;
           }
           print(likesUID);
           emit(SocialLikePostOnlySuccessState());
@@ -405,7 +402,7 @@ class SocialCubit extends Cubit<SocialStates> {
           });
           element.reference.collection('likes').snapshots().listen((event) {
             likesPostOnly.add(event.docs.length);
-            for (var element in event.docs.reversed) {
+            for (var element in event.docs) {
               if (userModel!.uId! != element.reference.id) {
                 likesUIDPostOnly.add(false);
               }
@@ -413,7 +410,6 @@ class SocialCubit extends Cubit<SocialStates> {
               if (userModel!.uId! == element.reference.id) {
                 likesUIDPostOnly.add(true);
               }
-              break;
             }
             emit(SocialLikePostOnlySuccessState());
           });
@@ -493,6 +489,7 @@ class SocialCubit extends Cubit<SocialStates> {
     required String postId,
     required String dateTime,
     required String text,
+    required int index,
   }) {
     CommentModel model = CommentModel(
       text: text,
@@ -508,6 +505,8 @@ class SocialCubit extends Cubit<SocialStates> {
           .collection('comments')
           .add(model.toMap())
           .then((value) {
+        commentCount[index]++;
+        commentCountPostOnly[index]++;
         emit(SocialSendCommentSuccessState());
       }).catchError((onError) {
         print("Error Is $onError");
@@ -532,6 +531,7 @@ class SocialCubit extends Cubit<SocialStates> {
         .snapshots()
         .listen((event) {
       comment.clear();
+      usersComment.clear();
       for (var element in event.docs) {
         comment.add(element.data());
         FirebaseFirestore.instance

@@ -6,12 +6,33 @@ import 'package:kodixa_book/layout/cubit/cubit.dart';
 import 'package:kodixa_book/layout/cubit/states.dart';
 import 'package:kodixa_book/models/post_model.dart';
 import 'package:kodixa_book/models/user_model.dart';
+import 'package:kodixa_book/modules/users/users.dart';
 import 'package:kodixa_book/shared/components/components.dart';
 import 'package:kodixa_book/shared/styles/colors.dart';
 import 'package:kodixa_book/shared/styles/icon_broken.dart';
 
-class FeedsScreen extends StatelessWidget {
+class FeedsScreen extends StatefulWidget {
   const FeedsScreen({Key? key}) : super(key: key);
+
+  @override
+  State<FeedsScreen> createState() => _FeedsScreenState();
+}
+
+class _FeedsScreenState extends State<FeedsScreen>
+    with SingleTickerProviderStateMixin {
+  TabController? controller;
+
+  @override
+  void initState() {
+    super.initState();
+    controller = TabController(length: 2, vsync: this);
+  }
+
+  @override
+  void dispose() {
+    controller!.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -19,73 +40,116 @@ class FeedsScreen extends StatelessWidget {
       listener: (context, state) {},
       builder: (context, state) {
         var cubit = SocialCubit.get(context);
+
         return cubit.posts.isEmpty && cubit.usersPosts.isEmpty
             ? const Center(child: CircularProgressIndicator())
-            : RefreshIndicator(
-                child: SingleChildScrollView(
-                  physics: const BouncingScrollPhysics(),
-                  child: Column(
-                    children: [
-                      Card(
-                        elevation: 10,
-                        margin: const EdgeInsets.all(8.0),
-                        shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(8)),
-                        clipBehavior: Clip.antiAliasWithSaveLayer,
-                        child: Stack(
-                          alignment: AlignmentDirectional.bottomEnd,
+            : Scaffold(
+                body: TabBarView(controller: controller, children: [
+                  RefreshIndicator(
+                      child: SingleChildScrollView(
+                        physics: const BouncingScrollPhysics(),
+                        child: Column(
                           children: [
-                            CachedNetworkImage(
-                              imageUrl:
-                                  "https://lh3.googleusercontent.com/a/AAcHTtddAEBJHQgG0JUODqWsw2AydU4qjyf5iZgvkWV_UVRV6Q=s288-c-no",
-                              fit: BoxFit.cover,
-                              height: 200,
-                              width: double.infinity,
+                            Card(
+                              elevation: 10,
+                              margin: const EdgeInsets.all(8.0),
+                              shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(8)),
+                              clipBehavior: Clip.antiAliasWithSaveLayer,
+                              child: Stack(
+                                alignment: AlignmentDirectional.bottomEnd,
+                                children: [
+                                  CachedNetworkImage(
+                                    imageUrl:
+                                        "https://lh3.googleusercontent.com/a/AAcHTtddAEBJHQgG0JUODqWsw2AydU4qjyf5iZgvkWV_UVRV6Q=s288-c-no",
+                                    fit: BoxFit.cover,
+                                    height: 200,
+                                    width: double.infinity,
+                                  ),
+                                  // Image.asset(
+                                  //   "assets/images/logoBook.png",
+                                  //   fit: BoxFit.cover,
+                                  //   height: 200,
+                                  //   width: double.infinity,
+                                  // ),
+                                  Padding(
+                                    padding: const EdgeInsets.all(8.0),
+                                    child: Text("Communicate with friends",
+                                        style: Theme.of(context)
+                                            .textTheme
+                                            .subtitle1!
+                                            .copyWith(color: Colors.white)),
+                                  ),
+                                ],
+                              ),
                             ),
-                            // Image.asset(
-                            //   "assets/images/logoBook.png",
-                            //   fit: BoxFit.cover,
-                            //   height: 200,
-                            //   width: double.infinity,
-                            // ),
-                            Padding(
-                              padding: const EdgeInsets.all(8.0),
-                              child: Text("Communicate with friends",
-                                  style: Theme.of(context)
-                                      .textTheme
-                                      .subtitle1!
-                                      .copyWith(color: Colors.white)),
+                            if (cubit.posts.length == cubit.usersPosts.length)
+                              cubit.posts.isEmpty && cubit.usersPosts.isEmpty
+                                  ? const Center(
+                                      child: CircularProgressIndicator())
+                                  : ListView.separated(
+                                      physics:
+                                          const NeverScrollableScrollPhysics(),
+                                      shrinkWrap: true,
+                                      itemCount: cubit.posts.length,
+                                      itemBuilder: (context, index) =>
+                                          buildPostItem(
+                                              cubit.posts[index],
+                                              cubit.usersPosts[index],
+                                              context,
+                                              index),
+                                      separatorBuilder:
+                                          (BuildContext context, int index) =>
+                                              const SizedBox(
+                                        height: 10,
+                                      ),
+                                    ),
+                            const SizedBox(
+                              height: 10,
                             ),
                           ],
                         ),
                       ),
-                      if (cubit.posts.length == cubit.usersPosts.length)
-                        cubit.posts.isEmpty && cubit.usersPosts.isEmpty
-                            ? const Center(child: CircularProgressIndicator())
-                            : ListView.separated(
-                                physics: const NeverScrollableScrollPhysics(),
-                                shrinkWrap: true,
-                                itemCount: cubit.posts.length,
-                                itemBuilder: (context, index) => buildPostItem(
-                                    cubit.posts[index],
-                                    cubit.usersPosts[index],
-                                    context,
-                                    index),
-                                separatorBuilder:
-                                    (BuildContext context, int index) =>
-                                        const SizedBox(
-                                  height: 10,
-                                ),
-                              ),
-                      const SizedBox(
-                        height: 10,
-                      ),
-                    ],
+                      onRefresh: () async {
+                        cubit.getPost();
+                      }),
+                  Center(
+                    child: Text("Soon..." , style: Theme.of(context).textTheme.bodyText1,),
                   ),
+                ]),
+                appBar: AppBar(
+                  toolbarHeight: 0,
+                  bottom: TabBar(
+                      // isScrollable: false,
+                      controller: controller,
+                      padding: EdgeInsets.zero,
+                      indicator: const UnderlineTabIndicator(
+                          borderSide:
+                              BorderSide(width: 4.0, color: defaultColor),
+                          insets: EdgeInsets.symmetric(horizontal: 20)),
+                      tabs: [
+                        Tab(
+                          iconMargin: EdgeInsets.zero,
+                          // height: 40,
+                          // text: "For you",
+                          child: Text(
+                            "For you",
+                            style: Theme.of(context).textTheme.bodyText1,
+                          ),
+                        ),
+                        Tab(
+                          iconMargin: EdgeInsets.zero,
+
+                          // height: 40,
+                          // text: "Following",
+                          child: Text(
+                            "Following",
+                            style: Theme.of(context).textTheme.bodyText1,
+                          ),
+                        ),
+                      ]),
                 ),
-                onRefresh: () async {
-                  cubit.getPost();
-                });
+              );
       },
     );
   }
@@ -226,7 +290,6 @@ Widget buildPostItem(PostModel model, UserModel userModel, context, index) =>
                       padding: const EdgeInsets.symmetric(vertical: 5),
                       child: Row(
                         children: [
-                          // if(SocialCubit.get(context).likesUID[index].keys.contains(SocialCubit.get(context).postsId[index]))
                           SocialCubit.get(context).likesUID[index] == true
                               ? const Icon(
                                   Icons.favorite,
@@ -441,6 +504,7 @@ Widget buildPostItem(PostModel model, UserModel userModel, context, index) =>
                                 IconButton(
                                     onPressed: () {
                                       SocialCubit.get(context).sendComment(
+                                          index: index,
                                           postId: SocialCubit.get(context)
                                               .postsId[index],
                                           dateTime: DateTime.now().toString(),

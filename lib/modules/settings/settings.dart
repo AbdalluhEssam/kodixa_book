@@ -9,6 +9,7 @@ import 'package:kodixa_book/layout/cubit/states.dart';
 import 'package:kodixa_book/models/post_model.dart';
 import 'package:kodixa_book/modules/edit_profile/edit_profile.dart';
 import 'package:kodixa_book/modules/login/login.dart';
+import 'package:kodixa_book/modules/new_posts/new_posts.dart';
 import 'package:kodixa_book/shared/components/components.dart';
 import 'package:kodixa_book/shared/styles/icon_broken.dart';
 import '../../models/user_model.dart';
@@ -166,7 +167,9 @@ class SettingsScreen extends StatelessWidget {
                   children: [
                     Expanded(
                         child: OutlinedButton(
-                            onPressed: () {}, child: const Text('Add Photo'))),
+                            onPressed: () {
+                              navigateTo(context, const NewPostsScreen());
+                            }, child: const Text('Add Photo'))),
                     const SizedBox(
                       width: 5,
                     ),
@@ -181,7 +184,7 @@ class SettingsScreen extends StatelessWidget {
                     OutlinedButton(
                         onPressed: () {
                           FirebaseAuth.instance.signOut();
-                          CacheHelper.removeData(key: 'uId');
+                          CacheHelper.sharedPreferences!.clear();
                           navigateTo(context, const LohInScreen());
                         },
                         child: const Icon(IconBroken.Logout)),
@@ -608,6 +611,7 @@ Widget buildPostItemOnly(PostModel model, UserModel userModel, context, index) =
                                     IconButton(
                                         onPressed: () {
                                           SocialCubit.get(context).sendComment(
+                                            index: index,
                                               postId: SocialCubit.get(context)
                                                   .postsIdOnly[index],
                                               dateTime: DateTime.now().toString(),

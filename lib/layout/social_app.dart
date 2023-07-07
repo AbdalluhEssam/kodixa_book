@@ -76,7 +76,7 @@ class SocialAppLayout extends StatelessWidget {
                     ),
                     label: 'Post'),
                 BottomNavigationBarItem(
-                    icon: Icon(IconBroken.Location), label: 'Users'),
+                    icon: Icon(IconBroken.User1), label: 'Users'),
                 BottomNavigationBarItem(
                     icon: Icon(IconBroken.Profile), label: 'Profile'),
               ]),

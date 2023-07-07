@@ -53,6 +53,9 @@ ThemeData darkTheme = ThemeData(
 );
 
 ThemeData lightTheme = ThemeData(
+  tabBarTheme: const TabBarTheme(
+    labelColor: Colors.black
+  ),
   primarySwatch: defaultColor,
   scaffoldBackgroundColor: Colors.white,
   appBarTheme: const AppBarTheme(
