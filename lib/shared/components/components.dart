@@ -38,7 +38,8 @@ Widget defaultTextButton({
       ),
     );
 Widget defaultTextFormField(
-        {required TextEditingController controller,
+        {
+          required TextEditingController controller,
         required TextInputType keyboardType,
         required String labelText,
         required IconData icon,

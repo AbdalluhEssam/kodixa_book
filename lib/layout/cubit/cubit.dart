@@ -277,11 +277,19 @@ class SocialCubit extends Cubit<SocialStates> {
   void getPost() {
     usersPosts.clear();
     emit(SocialGetPostLoadingState());
+
+  // });
+  //
+  // FirebaseFirestore.instance
+  //     .collection('posts')
+  //     .orderBy("dateTime", descending: true)
+  //     .snapshots()
+  //     .listen((event) {
+    
     FirebaseFirestore.instance
         .collection('posts')
         .orderBy("dateTime", descending: true)
-        .snapshots()
-        .listen((event) {
+        .snapshots().listen((event) { 
       posts.clear();
       postsId.clear();
       commentCount.clear();

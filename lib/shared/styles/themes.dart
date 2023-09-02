@@ -5,6 +5,8 @@ import 'package:hexcolor/hexcolor.dart';
 import 'colors.dart';
 
 ThemeData darkTheme = ThemeData(
+  useMaterial3: true,
+
   primarySwatch: defaultColor,
   scaffoldBackgroundColor: HexColor('333739'),
   appBarTheme: AppBarTheme(
@@ -53,6 +55,7 @@ ThemeData darkTheme = ThemeData(
 );
 
 ThemeData lightTheme = ThemeData(
+  useMaterial3: true,
   tabBarTheme: const TabBarTheme(
     labelColor: Colors.black
   ),
